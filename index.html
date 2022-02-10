@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.min.css">
+  <title>ArtShop</title>
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="header">
+  <div class="wrapper">
+    <div class="header__container">
+      <nav :class="{ 'header__nav--visible': menuShown }" class="header__nav">
+        <ul>
+          <li><a>Каталог</a></li>
+          <li><a>Доставка</a></li>
+          <li><a>Оплата</a></li>
+          <li><a>Контакты</a></li>
+          <li><a>О компании</a></li>
+        </ul>
+      </nav>
+      <div class="serach-block">
+        <input
+          class="serach-block__input"
+          type="text"
+          placeholder="Поиск по названию картины"
+          v-model="inputValue"
+        >
+        <button
+          class="button"
+          :class="{ 'button--processing': inputIsProcessing }"
+          :disabled="inputIsProcessing"
+          @click="searchItems"
+        >
+          <span>Найти</span>
+        </button>
+      </div>
+      <button type="button" class="menu-btn" :class="{ 'menu-btn--active': menuShown }" @click="toggleMenu">
+        <span class="menu-btn__line"></span>
+      </button>
+    </div>
+  </div>
+</header>
+    <div class="content">
+      <div class="wrapper">
+        <main class="main">
+          <section class="section">
+            <h1 class="h1">Картины эпохи Возрождения</h1>
+            <div class="section__container">
+              <div v-if="!filteredCards.length">По вашему запросу ничего не найдено</div>
+              <div class="cards">
+                <div class="cards__item" v-for="(card, index) in filteredCards" :key="card.id">
+  <div class="card" :class="{ 'card--blurred': card.isSold }">
+    <div class="card__preview"  @click="openModal(card, index)">
+      <img :src="card.previews[0]">
+    </div>
+    <div class="card__container">
+      <h2 class="h2 card__title" @click="openModal(card, index)">{{ card.title }}</h2>
+      <div class="card__footer">
+        <template v-if="card.isSold">
+          <span class="card__status">{{ card.statusTitle }}</span>
+        </template>
+        <template v-else>
+          <div class="card__price">
+            <span class="card__price-old">{{ card.oldPrice }}</span>
+            <span class="card__price-new">{{ card.price }}</span>
+          </div>
+          <button
+            v-if="!cart[card.id] && !card.isSold"
+            class="button card__button"
+            :class="{ 'button--processing': card.isProcessing }"
+            :disabled="card.isProcessing"
+            @click="addInCart(card)"
+          >
+            <span>Купить</span>
+          </button>
+          <button
+            v-if="cart[card.id]"
+            class="button card__button"
+            :class="{ 'button--processing': card.isProcessing, 'button--selected': !card.isProcessing }"
+            :disabled="card.isProcessing"
+            @click="removeFromCart(card)"
+          >
+            <span>В корзине</span>
+          </button>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+      <div name="modal" v-if="modalShown">
+  <div class="modal" :class="{ 'modal--shown': modalShown }">
+    <div class="modal__container">
+      <div class="modal__slider">
+        <div class="modal__slider-img">
+          <img :src="modalData.previews[modalData.currentSlide]">
+        </div>
+      </div>
+      <div class="modal__slider-nav">
+        <button class="modal__slider-btn" v-on:click="prevSlide">←</button>
+        <span>{{ (modalData.currentSlide + 1) + ' из ' + modalData.previews.length }}</span>
+        <button class="modal__slider-btn" v-on:click="nextSlide">→</button>
+      </div>
+      <div class="modal__body">
+        <h2 class="modal__title">{{ modalData.title }}</h2>
+        <p>{{ modalData.description }}</p>
+      </div>
+      <div class="modal__footer">
+        <span v-if="modalData.isSold" class="modal__price">{{ modalData.statusTitle }}</span>
+        <span v-else class="modal__price">{{ modalData.price }}</span>
+        <div class="modal__buttons">
+           <!--  -->
+          <button
+            v-if="!cart[modalData.id] && !modalData.isSold"
+            class="button"
+            v-bind:class="{ 'button--processing': modalData.isProcessing }"
+            :disabled="modalData.isProcessing"
+            v-on:click="addInCart(modalData)"
+          >
+            <span>Купить</span>
+          </button>
+
+          <button
+            v-if="cart[modalData.id]"
+            class="button"
+            v-bind:class="{ 'button--processing': modalData.isProcessing, 'button--selected': !modalData.isProcessing }"
+            :disabled="modalData.isProcessing"
+            v-on:click="removeFromCart(modalData)"
+          >
+            <span>В корзине</span>
+          </button>
+
+          <button
+            class="border-button"
+            v-on:click="modalShown = false"
+          >
+            <span>Закрыть</span>
+          </button>
+          <!--  -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+    <footer class="footer">
+  <div class="wrapper">
+    <div class="footer__container">
+      <nav class="footer__nav">
+        <ul>
+          <li><a>Каталог</a></li>
+          <li><a>Доставка</a></li>
+          <li><a>Оплата</a></li>
+          <li><a>Контакты</a></li>
+          <li><a>О&nbsp;&nbsp;компании</a></li>
+        </ul>
+      </nav>
+      <div class="footer__contacts">
+        <address>
+          <a href="tel:+78125555555">
+            <img src="../img/icons/icons.svg#tel" class="footer__contacts-icon svg-tel-dims" alt="tel">
+            <span>+7 (812) 555-55-55</span>
+          </a>
+          <a href="#">
+            <img src="../img/icons/icons.svg#navigator" class="footer__contacts-icon svg-navigator-dims" alt="navigator">
+            <span>г.Санкт-Петербург, ул. Ефимова, 3</span>
+          </a>
+        </address>
+      </div>
+    </div>
+  </div>
+</footer>
+  </div>
+  <script src="https://unpkg.com/vue@next"></script>
+  <script src="js/index.min.js"></script>
+</body>
+</html>
