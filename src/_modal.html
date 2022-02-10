@@ -1,0 +1,54 @@
+<div name="modal" v-if="modalShown">
+  <div class="modal" :class="{ 'modal--shown': modalShown }">
+    <div class="modal__container">
+      <div class="modal__slider">
+        <div class="modal__slider-img">
+          <img :src="modalData.previews[modalData.currentSlide]">
+        </div>
+      </div>
+      <div class="modal__slider-nav">
+        <button class="modal__slider-btn" v-on:click="prevSlide">←</button>
+        <span>{{ (modalData.currentSlide + 1) + ' из ' + modalData.previews.length }}</span>
+        <button class="modal__slider-btn" v-on:click="nextSlide">→</button>
+      </div>
+      <div class="modal__body">
+        <h2 class="modal__title">{{ modalData.title }}</h2>
+        <p>{{ modalData.description }}</p>
+      </div>
+      <div class="modal__footer">
+        <span v-if="modalData.isSold" class="modal__price">{{ modalData.statusTitle }}</span>
+        <span v-else class="modal__price">{{ modalData.price }}</span>
+        <div class="modal__buttons">
+           <!--  -->
+          <button
+            v-if="!cart[modalData.id] && !modalData.isSold"
+            class="button"
+            v-bind:class="{ 'button--processing': modalData.isProcessing }"
+            :disabled="modalData.isProcessing"
+            v-on:click="addInCart(modalData)"
+          >
+            <span>Купить</span>
+          </button>
+
+          <button
+            v-if="cart[modalData.id]"
+            class="button"
+            v-bind:class="{ 'button--processing': modalData.isProcessing, 'button--selected': !modalData.isProcessing }"
+            :disabled="modalData.isProcessing"
+            v-on:click="removeFromCart(modalData)"
+          >
+            <span>В корзине</span>
+          </button>
+
+          <button
+            class="border-button"
+            v-on:click="modalShown = false"
+          >
+            <span>Закрыть</span>
+          </button>
+          <!--  -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

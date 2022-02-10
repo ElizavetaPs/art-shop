@@ -1,0 +1,40 @@
+<div class="cards__item" v-for="(card, index) in filteredCards" :key="card.id">
+  <div class="card" :class="{ 'card--blurred': card.isSold }">
+    <div class="card__preview"  @click="openModal(card, index)">
+      <img :src="card.previews[0]">
+    </div>
+    <div class="card__container">
+      <h2 class="h2 card__title" @click="openModal(card, index)">{{ card.title }}</h2>
+      <div class="card__footer">
+        <template v-if="card.isSold">
+          <span class="card__status">{{ card.statusTitle }}</span>
+        </template>
+        <template v-else>
+          <div class="card__price">
+            <span class="card__price-old">{{ card.oldPrice }}</span>
+            <span class="card__price-new">{{ card.price }}</span>
+          </div>
+          <button
+            v-if="!cart[card.id] && !card.isSold"
+            class="button card__button"
+            :class="{ 'button--processing': card.isProcessing }"
+            :disabled="card.isProcessing"
+            @click="addInCart(card)"
+          >
+            <span>Купить</span>
+          </button>
+          <button
+            v-if="cart[card.id]"
+            class="button card__button"
+            :class="{ 'button--processing': card.isProcessing, 'button--selected': !card.isProcessing }"
+            :disabled="card.isProcessing"
+            @click="removeFromCart(card)"
+          >
+            <span>В корзине</span>
+          </button>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>
+

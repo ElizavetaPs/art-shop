@@ -1,0 +1,37 @@
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -16px;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 1200px) {
+  .cards {
+    &__item {
+      width: 33.33%;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .cards {
+    &__item {
+      width: 50%;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .cards {
+    &__item {
+      width: 100%;
+    }
+  }
+}
